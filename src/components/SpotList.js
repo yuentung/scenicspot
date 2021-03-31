@@ -4,7 +4,7 @@ import SpotItem from './SpotItem';
 import useFetchSpots from '../hooks/useFetchSpots';
 
 const SpotList = props => {
-    const city = props.match.params.city ? props.match.params.city : 'all';
+    const city = props.match.params.city || 'All';
     const [pageNumber, setPageNumber] = useState(1);
     const { loading, spots, hasMore, errorMsg } = useFetchSpots(pageNumber, city);
 
@@ -18,98 +18,79 @@ const SpotList = props => {
             return;
         }
 
-        // close observer
         if (observer.current) {
             observer.current.disconnect();
         }
 
-        // construct observer
         observer.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && hasMore) {
                 setPageNumber(prevPageNumber => prevPageNumber + 1);
             }
-        }, [0.75]);
+        }, [1]);
 
-        // start observer
         if (node) {
             observer.current.observe(node);
         }
     }, [loading, hasMore]);
 
-    // const renderList = ({ index, style }) => {
-    //     if (index + 1 === spots.length) {
-    //         return (
-    //             <SpotItem
-    //                 lastItemRef={lastSpotItemRef}
-    //                 key={spots[index].ID}
-    //                 style={style}
-    //                 spot={spots[index]}
-    //             />
-    //         );
-    //     } else {
-    //         return (
-    //             <SpotItem
-    //                 key={spots[index].ID}
-    //                 style={style}
-    //                 spot={spots[index]}
-    //             />
-    //         );
-    //     }
-    // };
+    const renderStatus = style => {
+        if (loading) {
+            return (
+                <div style={style}>
+                    <div className="ui active centered inline loader" style={style}></div>
+                </div>
+            );
+        }
 
-    const renderList = () => spots.map((spot, index) => {
+        if (!hasMore) {
+            return (
+                <div style={style}>
+                    <div className="ui info message" style={{ marginRight: '5px' }}>
+                        已經沒有資料摟
+                    </div>
+                </div>
+            );
+        }
+    };
+
+    const renderList = ({ index, style }) => {
         if (index + 1 === spots.length) {
             return (
-                <SpotItem
-                    lastItemRef={lastSpotItemRef}
-                    key={spot.ID}
-                    spot={spot}
-                />
+                <React.Fragment>
+                    <SpotItem
+                        lastItemRef={lastSpotItemRef}
+                        key={spots[index].ID}
+                        style={style}
+                        spot={spots[index]}
+                    />
+                    {renderStatus(style)}
+                </React.Fragment>
             );
         } else {
             return (
                 <SpotItem
-                    key={spot.ID}
-                    spot={spot}
+                    key={spots[index].ID}
+                    style={style}
+                    spot={spots[index]}
                 />
-            );
-        }
-    })
-
-    const renderStatus = () => {
-        if (errorMsg) {
-            return (
-                <div>{errorMsg}</div>
-            );
-        }
-
-        if (loading) {
-            return (
-                <div>Loading...</div>
-            );
-        }
-
-        if (pageNumber > 1 && !hasMore) {
-            return (
-                <div>No more...</div>
             );
         }
     };
 
     return (
-        <div className="ui relaxed divided list">
-            {/* <List
-                width={600}
-                height={200}
-                itemSize={20}
-                itemData={spots}
-                itemCount={spots.length}
-            >
-                {renderList}
-            </List> */}
-            {renderList()}
-            {renderStatus()}
-        </div>
+        <React.Fragment>
+            {errorMsg && <div className="ui red message">{errorMsg}</div>}
+            {spots.length ? (
+                <List
+                    height={window.innerHeight - 100}
+                    itemSize={60}
+                    itemData={spots}
+                    itemCount={spots.length}
+                >
+                    {renderList}
+                </List>
+            ) : null}
+        </React.Fragment>
     );
 };
 

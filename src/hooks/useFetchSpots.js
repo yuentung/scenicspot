@@ -14,17 +14,17 @@ const useFetchSpots = (pageNumber, city) => {
     useEffect(() => {
         setLoading(true);
         setErrorMsg('');
-        tourism.get(`/v2/Tourism/ScenicSpot${city === 'all' ? '' : `/${city}`}`, {
+        tourism.get(`/v2/Tourism/ScenicSpot${city === 'All' ? '' : `/${city}`}`, {
             params: {
                 $top: 30,
                 $skip: (pageNumber - 1) * 30
             }
         }).then(res => {
             setSpots(prevSpots => [...prevSpots, ...res.data]);
-            setHasMore(res.data.length > 0);
+            setHasMore(res.data.length === 30);
             setLoading(false);
         }).catch(e => {
-            setErrorMsg(`Error: ${e.response.statusText}`);
+            setErrorMsg(`錯誤: ${e.response.statusText}`);
         });
     }, [pageNumber, city]);
 

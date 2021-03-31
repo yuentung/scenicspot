@@ -1,16 +1,46 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { options } from '../const';
 
-const Dropdown = ({ selected, onSelectedChange, options }) => {
+const Dropdown = props => {
+    let initialOption;
+    if (props.match.path === "/scenicSpot/:city") {
+        initialOption = options[props.match.params.city] || { label: '--- 請選擇欲查詢地區 ---', value: '' };
+    } else if (props.match.path === "/scenicSpot") {
+        initialOption = options['All'];
+    } else {
+        initialOption = { label: '--- 請選擇欲查詢地區 ---', value: '' };
+    }
+    const [selectedOption, setSelectedOption] = useState(initialOption);
+
     const [open, setOpen] = useState(false);
+    const ref = useRef();
 
-    const renderOptions = options.map(option => {
+    useEffect(() => {
+        const onBodyClick = e => {
+            if (!ref.current.contains(e.target)) {
+                setOpen(false);
+            }
+        }
+
+        document.body.addEventListener('click', onBodyClick);
+
+        return () => {
+            document.body.removeEventListener('click', onBodyClick);
+        }
+    }, []);
+
+    const renderOptions = () => Object.values(options).map(option => {
+        if (option.value === selectedOption.value) {
+            return null;
+        }
+
         return (
             <Link
                 key={option.value}
                 className="item"
-                to={`/scenicSpot/${option.value}`}
-                onClick={() => onSelectedChange(option.label)}
+                to={`/scenicSpot${option.value === 'All' ? '' : `/${option.value}`}`}
+                onClick={() => setSelectedOption(option)}
             >
                 {option.label}
             </Link>
@@ -18,15 +48,15 @@ const Dropdown = ({ selected, onSelectedChange, options }) => {
     });
 
     return (
-        <div className="ui form">
+        <div ref={ref} className="ui form" style={{ marginBottom: '15px' }}>
             <div
-                className={`ui selection dropdown ${open ? 'visible active' : ''}`}
+                className={`ui fluid selection dropdown ${open ? 'visible active' : ''}`}
                 onClick={() => setOpen(!open)}
             >
                 <i className="dropdown icon"></i>
-                <div className="text">{selected}</div>
+                <div className="text">{selectedOption.label}</div>
                 <div className={`menu ${open ? 'visible transition' : ''}`}>
-                    {renderOptions}
+                    {renderOptions()}
                 </div>
             </div>
         </div>
