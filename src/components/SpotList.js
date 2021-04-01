@@ -28,9 +28,9 @@ const SpotList = ({
 
     useEffect(() => {
         setCity(city);
-        if (spots.length) resetSpots();
+        resetSpots();
         fetchSpots(city, 1);
-        if (pageNumber !== 1) resetPageNumber();
+        resetPageNumber();
     }, [city]);
 
     const observer = useRef();

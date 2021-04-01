@@ -15,7 +15,7 @@ export const resetSpots = () => {
     return { type: RESET_SPOTS };
 };
 
-export const fetchSpots = (city, pageNumber) => async (dispatch) => {
+export const fetchSpots = (city, pageNumber) => async dispatch => {
     dispatch(setLoading(true));
     try {
         dispatch(resetErrorMessage());
