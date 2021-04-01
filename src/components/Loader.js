@@ -1,9 +1,5 @@
-const Loader = ({ style }) => {
-    return (
-        <div style={style}>
-            <div className="ui active centered inline loader"></div>
-        </div>
-    );
+const Loader = () => {
+    return <div className="ui active centered inline loader"></div>;
 };
 
 export default Loader;

@@ -15,7 +15,7 @@ export const resetSpots = () => {
     return { type: RESET_SPOTS };
 };
 
-export const fetchSpots = (city, pageNumber) => async dispatch => {
+export const fetchSpots = (city, pageNumber) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
         dispatch(resetErrorMessage());
@@ -28,7 +28,7 @@ export const fetchSpots = (city, pageNumber) => async dispatch => {
         dispatch({ type: FETCH_SPOTS, payload: response.data });
         dispatch(setHasMore(response.data.length === 30));
     } catch (e) {
-        dispatch(setErrorMessage(e.response.statusText))
+        dispatch(setErrorMessage(e.response.statusText));
     }
     dispatch(setLoading(false));
 };

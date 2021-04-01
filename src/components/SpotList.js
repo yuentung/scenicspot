@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { FixedSizeList as List } from 'react-window';
 import SpotItem from './SpotItem';
-import Loader from './Loader';
-import HasMore from './HasMore';
 import ErrorMessage from './ErrorMessage';
 import {
     resetSpots,
@@ -30,9 +28,9 @@ const SpotList = ({
 
     useEffect(() => {
         setCity(city);
-        resetSpots();
+        if (spots.length) resetSpots();
         fetchSpots(city, 1);
-        resetPageNumber();
+        if (pageNumber !== 1) resetPageNumber();
     }, [city]);
 
     const observer = useRef();
@@ -53,34 +51,17 @@ const SpotList = ({
         }
     }, [loading, hasMore]);
 
-    const renderStatus = style => {
-        if (loading) return <Loader style={style} />;
-
-        if (!hasMore) return <HasMore style={style} />;
-    };
-
     const renderList = ({ index, style }) => {
-        if (index + 1 === spots.length) {
-            return (
-                <React.Fragment>
-                    <SpotItem
-                        lastItemRef={lastSpotItemRef}
-                        key={spots[index].ID}
-                        style={style}
-                        spot={spots[index]}
-                    />
-                    {renderStatus(style)}
-                </React.Fragment>
-            );
-        } else {
-            return (
-                <SpotItem
-                    key={spots[index].ID}
-                    style={style}
-                    spot={spots[index]}
-                />
-            );
-        }
+        const lastSpotItemProps = index + 1 === spots.length ? { lastSpotItemRef, loading, hasMore } : null;
+
+        return (
+            <SpotItem
+                key={spots[index].ID}
+                style={style}
+                spot={spots[index]}
+                {...lastSpotItemProps}
+            />
+        );
     };
 
     return (
