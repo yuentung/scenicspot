@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { FixedSizeList as List } from 'react-window';
 import SpotItem from './SpotItem';
+import Loader from './Loader';
+import HasMore from './HasMore';
+import ErrorMessage from './ErrorMessage';
 import {
     resetSpots,
     fetchSpots,
@@ -34,13 +37,9 @@ const SpotList = ({
 
     const observer = useRef();
     const lastSpotItemRef = useCallback(node => {
-        if (loading) {
-            return;
-        }
+        if (loading) return;
 
-        if (observer.current) {
-            observer.current.disconnect();
-        }
+        if (observer.current) observer.current.disconnect();
 
         observer.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && hasMore) {
@@ -55,23 +54,9 @@ const SpotList = ({
     }, [loading, hasMore]);
 
     const renderStatus = style => {
-        if (loading) {
-            return (
-                <div style={style}>
-                    <div className="ui active centered inline loader" style={style}></div>
-                </div>
-            );
-        }
+        if (loading) return <Loader style={style} />;
 
-        if (!hasMore) {
-            return (
-                <div style={style}>
-                    <div className="ui info message" style={{ marginRight: '5px' }}>
-                        已經沒有資料摟
-                    </div>
-                </div>
-            );
-        }
+        if (!hasMore) return <HasMore style={style} />;
     };
 
     const renderList = ({ index, style }) => {
@@ -100,7 +85,7 @@ const SpotList = ({
 
     return (
         <React.Fragment>
-            {errorMessage && <div className="ui red message">{errorMessage}</div>}
+            {errorMessage && <ErrorMessage errorMessage={errorMessage} />}
             {spots.length ? (
                 <List
                     height={window.innerHeight - 100 - (errorMessage && 100)}
