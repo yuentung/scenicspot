@@ -1,18 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { options } from '../const';
 
-const Dropdown = props => {
-    let initialOption;
-    if (props.match.path === "/scenicSpot/:city") {
-        initialOption = options[props.match.params.city] || { label: '--- 請選擇欲查詢地區 ---', value: '' };
-    } else if (props.match.path === "/scenicSpot") {
-        initialOption = options['All'];
-    } else {
-        initialOption = { label: '--- 請選擇欲查詢地區 ---', value: '' };
-    }
-    const [selectedOption, setSelectedOption] = useState(initialOption);
-
+const Dropdown = ({ city }) => {
+    const [selectedOption, setSelectedOption] = useState(options[city]);
     const [open, setOpen] = useState(false);
     const ref = useRef();
 
@@ -30,8 +22,12 @@ const Dropdown = props => {
         }
     }, []);
 
+    useEffect(() => {
+        setSelectedOption(options[city]);
+    }, [city]);
+
     const renderOptions = () => Object.values(options).map(option => {
-        if (option.value === selectedOption.value) {
+        if (option.value === '' || option.value === selectedOption.value) {
             return null;
         }
 
@@ -49,18 +45,27 @@ const Dropdown = props => {
 
     return (
         <div ref={ref} className="ui form" style={{ marginBottom: '15px' }}>
-            <div
-                className={`ui fluid selection dropdown ${open ? 'visible active' : ''}`}
-                onClick={() => setOpen(!open)}
-            >
-                <i className="dropdown icon"></i>
-                <div className="text">{selectedOption.label}</div>
-                <div className={`menu ${open ? 'visible transition' : ''}`}>
-                    {renderOptions()}
+            <div className="field">
+                <label className="label">請選擇欲查詢地區：</label>
+                <div
+                    className={`ui fluid selection dropdown ${open ? 'visible active' : ''}`}
+                    onClick={() => setOpen(!open)}
+                >
+                    <i className="dropdown icon"></i>
+                    <div className="text">{selectedOption.label}</div>
+                    <div className={`menu ${open ? 'visible transition' : ''}`}>
+                        {renderOptions()}
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-export default Dropdown;
+const mapStateToProps = state => {
+    return {
+        'city': state.city
+    };
+};
+
+export default connect(mapStateToProps)(Dropdown);

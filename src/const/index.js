@@ -1,4 +1,5 @@
 export const options = {
+    '': { label: '--- 請選擇欲查詢地區 ---', value: '' },
     'All': { label: '所有地區', value: 'All' },
     'Taipei': { label: '臺北市', value: 'Taipei' },
     'NewTaipei': { label: '新北市', value: 'NewTaipei' },

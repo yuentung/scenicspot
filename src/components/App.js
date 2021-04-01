@@ -8,7 +8,7 @@ const App = () => {
         <div className="ui container" style={{ padding: '15px 0' }}>
             <BrowserRouter>
                 <React.Fragment>
-                    <Route path={["/", "/scenicSpot", "/scenicSpot/:city"]} exact component={Dropdown} />
+                    <Dropdown />
                     <Route path={["/scenicSpot", "/scenicSpot/:city"]} exact component={SpotList} />
                 </React.Fragment>
             </BrowserRouter>

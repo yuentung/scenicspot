@@ -1,15 +1,35 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
+import { connect } from 'react-redux';
 import { FixedSizeList as List } from 'react-window';
 import SpotItem from './SpotItem';
-import useFetchSpots from '../hooks/useFetchSpots';
+import {
+    resetSpots,
+    fetchSpots,
+    setCity,
+    resetPageNumber,
+    incrementPageNumber
+} from '../actions';
 
-const SpotList = props => {
-    const city = props.match.params.city || 'All';
-    const [pageNumber, setPageNumber] = useState(1);
-    const { loading, spots, hasMore, errorMsg } = useFetchSpots(pageNumber, city);
+const SpotList = ({
+    match,
+    spots,
+    pageNumber,
+    errorMessage,
+    loading,
+    resetSpots,
+    fetchSpots,
+    setCity,
+    resetPageNumber,
+    incrementPageNumber,
+    hasMore
+}) => {
+    const city = match.params.city || 'All';
 
     useEffect(() => {
-        setPageNumber(1);
+        setCity(city);
+        resetSpots();
+        fetchSpots(city, 1);
+        resetPageNumber();
     }, [city]);
 
     const observer = useRef();
@@ -24,7 +44,8 @@ const SpotList = props => {
 
         observer.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && hasMore) {
-                setPageNumber(prevPageNumber => prevPageNumber + 1);
+                fetchSpots(city, pageNumber + 1);
+                incrementPageNumber();
             }
         }, [1]);
 
@@ -79,10 +100,10 @@ const SpotList = props => {
 
     return (
         <React.Fragment>
-            {errorMsg && <div className="ui red message">{errorMsg}</div>}
+            {errorMessage && <div className="ui red message">{errorMessage}</div>}
             {spots.length ? (
                 <List
-                    height={window.innerHeight - 100}
+                    height={window.innerHeight - 100 - (errorMessage && 100)}
                     itemSize={60}
                     itemData={spots}
                     itemCount={spots.length}
@@ -94,4 +115,21 @@ const SpotList = props => {
     );
 };
 
-export default SpotList;
+const mapStateToProps = state => {
+    return {
+        spots: Object.values(state.spots),
+        city: state.city,
+        pageNumber: state.pageNumber,
+        errorMessage: state.errorMessage,
+        loading: state.loading,
+        hasMore: state.hasMore
+    };
+};
+
+export default connect(mapStateToProps, {
+    resetSpots,
+    fetchSpots,
+    setCity,
+    resetPageNumber,
+    incrementPageNumber
+})(SpotList);
