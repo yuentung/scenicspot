@@ -13,7 +13,7 @@ $ npm install && npm start (or using yarn instead)
 src
 ├── actions
 │   └── index.js
-│   └── type.js
+│   └── types.js
 ├── reducers
 │   └── index.js
 ├── api
